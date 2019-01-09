@@ -1,0 +1,141 @@
+body {
+            background-color: #fff;
+        }
+
+        header {
+            background: rgba(94, 157, 217, 1);
+            background: -moz-radial-gradient(center, ellipse cover, rgba(94, 157, 217, 1) 0%, rgba(43, 106, 173, 1) 100%);
+            background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(94, 157, 217, 1)), color-stop(100%, rgba(43, 106, 173, 1)));
+            background: -webkit-radial-gradient(center, ellipse cover, rgba(94, 157, 217, 1) 0%, rgba(43, 106, 173, 1) 100%);
+            background: -o-radial-gradient(center, ellipse cover, rgba(94, 157, 217, 1) 0%, rgba(43, 106, 173, 1) 100%);
+            background: -ms-radial-gradient(center, ellipse cover, rgba(94, 157, 217, 1) 0%, rgba(43, 106, 173, 1) 100%);
+            background: radial-gradient(ellipse at center, rgba(94, 157, 217, 1) 0%, rgba(43, 106, 173, 1) 100%);
+            filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#5e9dd9', endColorstr='#2b6aad', GradientType=1);
+            margin-top: nav
+        }
+
+        #myCarousel {
+            height: 100vh;
+        }
+
+        .item {
+            height: 100vh;
+            padding: 30px;
+        }
+
+        .item img {
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+    .navbar {
+            margin-bottom: 0;
+            background-color: rgba(8, 8, 8, 0.8);
+            border: none;
+        }
+
+        .navbar.navbar-default .navbar-nav>li>a,
+        .navbar.navbar-default .navbar-header .navbar-brand {
+            font-family: "Cantarell", sans-serif;
+            text-transform: uppercase;
+            transition: color 0.3s ease-in-out;
+            color: #000;
+        }
+
+        .navbar.navbar-default .navbar-nav>li>a:hover,
+        .navbar.navbar-default .navbar-nav>li>a:focus,
+        .navbar.navbar-default .navbar-nav>li>a:active,
+        .navbar.navbar-default .navbar-header .navbar-brand:hover,
+        .navbar.navbar-default .navbar-header .navbar-brand:focus,
+        .navbar.navbar-default .navbar-header .navbar-brand:active {
+            color: #000;
+        }
+
+        
+        /* Allow for centering of tabs and pills - just add 'centered' class */
+
+        .nav-tabs.centered>li,
+        .nav-pills.centered>li {
+            float: none;
+            display: inline-block;
+            *display: inline;
+            /* ie7 fix */
+            zoom: 1;
+            /* hasLayout ie7 trigger */
+        }
+
+        .nav-tabs.centered,
+        .nav-pills.centered {
+            text-align: center;
+        }
+
+
+        /**/
+
+        .sample {
+            margin: 30px 0px 20px 0px;
+            width: 100%;
+        }
+
+        .grey-bg {
+            background-color: #eee;
+            border-color: #eee;
+            color: #333;
+        }
+
+        section {
+            padding-top: 80px;
+            padding-bottom: 80px;
+        }
+
+        #section-2 img {
+            margin: -30px 0px 30px 40px;
+        }
+
+
+        footer {
+            background: rgba(15, 51, 82, 1);
+            background: -moz-linear-gradient(top, rgba(15, 51, 82, 1) 0%, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 1) 100%);
+            background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(15, 51, 82, 1)), color-stop(65%, rgba(0, 0, 0, 1)), color-stop(100%, rgba(0, 0, 0, 1)));
+            background: -webkit-linear-gradient(top, rgba(15, 51, 82, 1) 0%, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 1) 100%);
+            background: -o-linear-gradient(top, rgba(15, 51, 82, 1) 0%, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 1) 100%);
+            background: -ms-linear-gradient(top, rgba(15, 51, 82, 1) 0%, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 1) 100%);
+            background: linear-gradient(to bottom, rgba(15, 51, 82, 1) 0%, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 1) 100%);
+            filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#0f3352', endColorstr='#000000', GradientType=0);
+            color: #999;
+            padding: 135px 0px;
+        }
+
+        .legal {
+            font-size: .75em;
+            color: #4d6283;
+        }
+
+        footer a .fa {
+            font-size: 4em;
+            display: inline-block;
+            margin: 30px;
+        }
+
+        footer a:link,
+        a:visited {
+            color: #596e84;
+        }
+
+        footer a:hover,
+        a:active {
+            color: #91acc7;
+        }
+
+        .navbar-nav li > a {
+            text-transform: capitalize;
+            color: #333;
+            transition: background-color .2s, color .2s;
+        }
+
+
+        .img-circle{
+            width: 200px;
+            height: 200px;
+        }

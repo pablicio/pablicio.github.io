@@ -43,35 +43,6 @@ header {
     padding: 40px;
 }
 
-/* .navbar {
-    z-index: 2;
-}
-
-.navbar.navbar-inverse {
-    background-color: #000;
-}
-
-.navbar.navbar-fixed-top {
-    position: absolute;
-}
-
-.navbar.scroll-hide {
-    opacity: 0;
-    transition: opacity .25s ease-in-out;
-}
-
-.navbar.scroll-fix {
-    position: fixed;
-    opacity: .99;
-    transition: opacity .25s ease-in-out;
-}
-
-.navbar .navbar-brand img {
-    height: 35px;
-    margin-top: -7.5px;
-    float: left;
-    margin-right: 10px;
-} */
 
 /***********************************************************************
 *  OPAQUE NAVBAR SECTION
@@ -158,9 +129,10 @@ ul.dropdown-menu {
     color: #77acd9;
 }
 
-img {
+/* img {
     max-width: 100%;
-}
+} */
+
 
 .business-name {
     display: none;
@@ -195,7 +167,8 @@ img {
 }
 
 .figure.overlay img {
-    width: auto;
+    width: 60%;
+    margin-top: 70px;
 }
 
 .figure.overlay figcaption {

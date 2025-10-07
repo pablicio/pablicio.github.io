@@ -50,17 +50,68 @@
   // Initialize mermaid
   mermaid.initialize({ startOnLoad: false });
 
-  // Configure marked and KaTeX
+  // Configure marked with proper math handling
   marked.use({
     mangle: false,
     headerIds: false,
-    gfm: true
+    breaks: false
   });
 
-  marked.use(markedKatex({
-    throwOnError: false,
-    strict: false
-  }));
+  // Custom KaTeX extension for marked
+  marked.use({
+    extensions: [{
+      name: 'math',
+      level: 'inline',
+      start(src) { return src.indexOf('$'); },
+      tokenizer(src) {
+        const blockRule = /^\$\$([^$]+)\$\$/;
+        const inlineRule = /^\$([^$\n]+?)\$/;
+        
+        const blockMatch = blockRule.exec(src);
+        if (blockMatch) {
+          return {
+            type: 'math',
+            raw: blockMatch[0],
+            text: blockMatch[1].trim(),
+            display: true
+          };
+        }
+
+        const inlineMatch = inlineRule.exec(src);
+        if (inlineMatch) {
+          return {
+            type: 'math',
+            raw: inlineMatch[0],
+            text: inlineMatch[1].trim(),
+            display: false
+          };
+        }
+      },
+      renderer(token) {
+        try {
+          const tex = token.text
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/~/g, '\\sim');
+            
+          return katex.renderToString(tex, {
+            displayMode: token.display,
+            throwOnError: false,
+            strict: false,
+            trust: true,
+            macros: {
+              "\\P": "\\mathbb{P}",
+              "\\E": "\\mathbb{E}"
+            }
+          });
+        } catch (err) {
+          console.warn('KaTeX error:', err);
+          return token.raw;
+        }
+      }
+    }]
+  });
 
   // Configure highlight.js
   hljs.configure({

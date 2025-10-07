@@ -34,6 +34,8 @@ body{display:flex;flex-direction:column;}
 }
 .app-title h1{font-size:16px;font-weight:700;color:#f8fafc;}
 .app-title p{font-size:12px;color:var(--muted)}
+.icon-btn{background:rgba(255,255,255,0.03);border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:16px;transition:all .2s;}
+.icon-btn:active{background:rgba(255,255,255,0.08);transform:scale(0.94);}
 
 /* file card fixo */
 .file-card{
@@ -47,8 +49,10 @@ body{display:flex;flex-direction:column;}
 .file-btn{
   background:linear-gradient(90deg,var(--accent),var(--accent-600));
   color:white;padding:10px 14px;border-radius:12px;border:none;font-weight:700;cursor:pointer;
-  display:inline-flex;gap:8px;align-items:center;box-shadow:0 8px 30px rgba(79,70,229,0.18)
+  display:inline-flex;gap:8px;align-items:center;box-shadow:0 8px 30px rgba(79,70,229,0.18);
+  transition:all .2s;
 }
+.file-btn:active{transform:scale(0.96);}
 .file-name{color:var(--muted);font-size:13px;flex:1;text-align:left;margin-left:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .3s, text-shadow .3s;}
 .file-name.flash{color:#c7d2fe;text-shadow:0 0 6px rgba(147,197,253,0.6);}
 .small-note{font-size:12px;color:var(--muted);margin-top:8px}
@@ -56,8 +60,8 @@ body{display:flex;flex-direction:column;}
 /* preview área rolável */
 .preview{
   position:fixed;
-  top:150px; /* abaixo do header + file card */
-  bottom:84px; /* acima do footer */
+  top:150px;
+  bottom:84px;
   left:0;right:0;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
@@ -72,6 +76,7 @@ body{display:flex;flex-direction:column;}
   transition:all .18s ease;opacity:.95;
 }
 .chunk:hover{background:rgba(255,255,255,0.02);opacity:1}
+.chunk:active{background:rgba(255,255,255,0.04);}
 .chunk.current{
   background: var(--highlight-bg);
   color: var(--highlight-text);
@@ -93,8 +98,10 @@ body{display:flex;flex-direction:column;}
   backdrop-filter: blur(6px);
 }
 .fab{width:54px;height:54px;border-radius:999px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent-600));
-  color:white;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 12px 30px rgba(79,70,229,0.28);cursor:pointer}
-.small-btn{width:44px;height:44px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+  color:white;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 12px 30px rgba(79,70,229,0.28);cursor:pointer;transition:all .2s;}
+.fab:active{transform:scale(0.95);}
+.small-btn{width:44px;height:44px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;}
+.small-btn:active{transform:scale(0.92);background:rgba(255,255,255,0.08);}
 
 @media(min-width:720px){
   .preview{left:12px;right:12px;}
@@ -124,11 +131,11 @@ body{display:flex;flex-direction:column;}
 <div id="preview" class="preview"></div>
 
 <div class="footer">
-  <button id="prevBtn" class="small-btn">◀︎</button>
-  <button id="playBtn" class="fab">▶</button>
-  <button id="pauseBtn" class="small-btn">⏸</button>
-  <button id="nextBtn" class="small-btn">▶︎</button>
-  <button id="stopBtn" class="small-btn">⏹</button>
+  <button id="prevBtn" class="small-btn" title="Anterior">◀︎</button>
+  <button id="playBtn" class="fab" title="Reproduzir">▶</button>
+  <button id="pauseBtn" class="small-btn" title="Pausar">⏸</button>
+  <button id="nextBtn" class="small-btn" title="Próximo">▶︎</button>
+  <button id="stopBtn" class="small-btn" title="Parar">⏹</button>
 </div>
 
 <script>
@@ -141,15 +148,28 @@ const stopBtn=document.getElementById('stopBtn');
 const prevBtn=document.getElementById('prevBtn');
 const nextBtn=document.getElementById('nextBtn');
 let chunks=[],chunkHtml=[],currentIndex=0,utterance=null;
+let settings={rate:1.0,pitch:1.0,volume:1.0,voice:null};
 
-/* remove marcações markdown antes da leitura */
+/* remove TODAS marcações markdown antes da leitura */
 function cleanMarkdown(text){
   return text
     .replace(/```[\s\S]*?```/g, '')       // blocos de código
     .replace(/`([^`]+)`/g, '$1')          // crases inline
     .replace(/!\[.*?\]\(.*?\)/g, '')      // imagens
     .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // links
-    .replace(/[*_~#>`-]+/g, '')           // símbolos markdown
+    .replace(/^\s*#{1,6}\s+/gm, '')       // headers (##, ###, etc)
+    .replace(/\*\*\*(.+?)\*\*\*/g, '$1')  // bold+italic
+    .replace(/\*\*(.+?)\*\*/g, '$1')      // bold
+    .replace(/\*(.+?)\*/g, '$1')          // italic
+    .replace(/__(.+?)__/g, '$1')          // bold underscore
+    .replace(/_(.+?)_/g, '$1')            // italic underscore
+    .replace(/~~(.+?)~~/g, '$1')          // strikethrough
+    .replace(/\|\|(.+?)\|\|/g, '$1')      // spoiler
+    .replace(/^>\s+/gm, '')               // quotes
+    .replace(/^\s*[-*+]\s+/gm, '')        // lista não ordenada
+    .replace(/^\s*\d+\.\s+/gm, '')        // lista ordenada
+    .replace(/^\s*-{3,}\s*$/gm, '')       // separadores
+    .replace(/^\s*\*{3,}\s*$/gm, '')      // separadores
     .replace(/\s{2,}/g, ' ')              // espaços extras
     .trim();
 }
@@ -169,11 +189,16 @@ function renderChunks(md){
 function speakIndex(i){
   if(i<0||i>=chunks.length)return;
   speechSynthesis.cancel();
+  currentIndex=i;
   const text = cleanMarkdown(chunks[i]);
   if(!text.trim()){ // pula blocos vazios
     return setTimeout(()=>speakIndex(i+1),200);
   }
   utterance=new SpeechSynthesisUtterance(text);
+  utterance.rate=settings.rate;
+  utterance.pitch=settings.pitch;
+  utterance.volume=settings.volume;
+  if(settings.voice)utterance.voice=settings.voice;
   utterance.onstart=()=>highlight(i);
   utterance.onend=()=>{if(i<chunks.length-1)setTimeout(()=>speakIndex(i+1),300);}
   speechSynthesis.speak(utterance);
@@ -201,9 +226,157 @@ preview.onclick=e=>{
 
 playBtn.onclick=()=>speakIndex(currentIndex);
 pauseBtn.onclick=()=>speechSynthesis.pause();
-stopBtn.onclick=()=>speechSynthesis.cancel();
+stopBtn.onclick=()=>{speechSynthesis.cancel();preview.querySelectorAll('.chunk').forEach(c=>c.classList.remove('current'));}
 prevBtn.onclick=()=>{currentIndex=Math.max(0,currentIndex-1);speakIndex(currentIndex);}
 nextBtn.onclick=()=>{currentIndex=Math.min(chunks.length-1,currentIndex+1);speakIndex(currentIndex);}
+
+// Modal de configurações
+const gearBtn=document.getElementById('gearBtn');
+const modal=document.createElement('div');
+modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);';
+modal.innerHTML=`
+<div style="background:linear-gradient(180deg,#0f1728,#081427);border-radius:20px;padding:24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(2,6,23,0.8);border:1px solid rgba(255,255,255,0.06);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+    <h2 style="font-size:20px;font-weight:700;">⚙️ Configurações</h2>
+    <button id="closeModal" style="background:none;border:none;font-size:28px;cursor:pointer;color:#9aa4b2;">×</button>
+  </div>
+  
+  <div style="display:flex;flex-direction:column;gap:20px;">
+    <div>
+      <label style="display:block;margin-bottom:8px;font-size:14px;font-weight:600;">Velocidade: <span id="rateVal">1.0</span>x</label>
+      <input id="rateSlider" type="range" min="0.5" max="2" step="0.1" value="1" style="width:100%;accent-color:var(--accent);">
+    </div>
+    
+    <div>
+      <label style="display:block;margin-bottom:8px;font-size:14px;font-weight:600;">Tom: <span id="pitchVal">1.0</span></label>
+      <input id="pitchSlider" type="range" min="0.5" max="2" step="0.1" value="1" style="width:100%;accent-color:var(--accent);">
+    </div>
+    
+    <div>
+      <label style="display:block;margin-bottom:8px;font-size:14px;font-weight:600;">Volume: <span id="volumeVal">100</span>%</label>
+      <input id="volumeSlider" type="range" min="0" max="1" step="0.1" value="1" style="width:100%;accent-color:var(--accent);">
+    </div>
+    
+    <div>
+      <label id="voiceLabel" style="display:block;margin-bottom:8px;font-size:14px;font-weight:600;">Voz (carregando...)</label>
+      <select id="voiceSelect" style="width:100%;padding:10px;border-radius:8px;background:#081427;border:1px solid rgba(255,255,255,0.1);color:#e6eef8;font-size:14px;max-height:200px;"></select>
+    </div>
+  </div>
+</div>
+`;
+document.body.appendChild(modal);
+
+const rateSlider=document.getElementById('rateSlider');
+const pitchSlider=document.getElementById('pitchSlider');
+const volumeSlider=document.getElementById('volumeSlider');
+const voiceSelect=document.getElementById('voiceSelect');
+const voiceLabel=document.getElementById('voiceLabel');
+
+// Popula vozes - TODAS as disponíveis
+let allVoices=[];
+function loadVoices(){
+  allVoices=speechSynthesis.getVoices();
+  if(allVoices.length===0){
+    setTimeout(loadVoices,100); // retry para Android
+    return;
+  }
+  
+  // Atualiza label
+  voiceLabel.textContent=`Voz (${allVoices.length} disponíveis)`;
+  
+  // Agrupa por idioma
+  const grouped={};
+  allVoices.forEach((v,i)=>{
+    const lang=v.lang.split('-')[0];
+    if(!grouped[lang])grouped[lang]=[];
+    grouped[lang].push({voice:v,index:i});
+  });
+  
+  // Monta select com grupos
+  let html='<option value="">Voz padrão do sistema</option>';
+  
+  // Português primeiro
+  if(grouped.pt){
+    html+='<optgroup label="🇧🇷 Português">';
+    grouped.pt.forEach(v=>html+=`<option value="${v.index}">${v.voice.name}</option>`);
+    html+='</optgroup>';
+  }
+  
+  // Inglês
+  if(grouped.en){
+    html+='<optgroup label="🇺🇸 English">';
+    grouped.en.forEach(v=>html+=`<option value="${v.index}">${v.voice.name}</option>`);
+    html+='</optgroup>';
+  }
+  
+  // Espanhol
+  if(grouped.es){
+    html+='<optgroup label="🇪🇸 Español">';
+    grouped.es.forEach(v=>html+=`<option value="${v.index}">${v.voice.name}</option>`);
+    html+='</optgroup>';
+  }
+  
+  // Francês
+  if(grouped.fr){
+    html+='<optgroup label="🇫🇷 Français">';
+    grouped.fr.forEach(v=>html+=`<option value="${v.index}">${v.voice.name}</option>`);
+    html+='</optgroup>';
+  }
+  
+  // Alemão
+  if(grouped.de){
+    html+='<optgroup label="🇩🇪 Deutsch">';
+    grouped.de.forEach(v=>html+=`<option value="${v.index}">${v.voice.name}</option>`);
+    html+='</optgroup>';
+  }
+  
+  // Italiano
+  if(grouped.it){
+    html+='<optgroup label="🇮🇹 Italiano">';
+    grouped.it.forEach(v=>html+=`<option value="${v.index}">${v.voice.name}</option>`);
+    html+='</optgroup>';
+  }
+  
+  // Japonês
+  if(grouped.ja){
+    html+='<optgroup label="🇯🇵 日本語">';
+    grouped.ja.forEach(v=>html+=`<option value="${v.index}">${v.voice.name}</option>`);
+    html+='</optgroup>';
+  }
+  
+  // Chinês
+  if(grouped.zh){
+    html+='<optgroup label="🇨🇳 中文">';
+    grouped.zh.forEach(v=>html+=`<option value="${v.index}">${v.voice.name}</option>`);
+    html+='</optgroup>';
+  }
+  
+  // Outros idiomas
+  const shown=['pt','en','es','fr','de','it','ja','zh'];
+  const others=Object.keys(grouped).filter(k=>!shown.includes(k));
+  if(others.length>0){
+    html+='<optgroup label="🌍 Outros idiomas">';
+    others.forEach(lang=>{
+      grouped[lang].forEach(v=>html+=`<option value="${v.index}">${v.voice.name} (${v.voice.lang})</option>`);
+    });
+    html+='</optgroup>';
+  }
+  
+  voiceSelect.innerHTML=html;
+}
+speechSynthesis.onvoiceschanged=loadVoices;
+setTimeout(loadVoices,100); // inicia com delay para Android
+
+rateSlider.oninput=e=>{settings.rate=+e.target.value;document.getElementById('rateVal').textContent=settings.rate.toFixed(1);}
+pitchSlider.oninput=e=>{settings.pitch=+e.target.value;document.getElementById('pitchVal').textContent=settings.pitch.toFixed(1);}
+volumeSlider.oninput=e=>{settings.volume=+e.target.value;document.getElementById('volumeVal').textContent=Math.round(settings.volume*100);}
+voiceSelect.onchange=e=>{
+  settings.voice=e.target.value?allVoices[+e.target.value]:null;
+}
+
+gearBtn.onclick=()=>modal.style.display='flex';
+document.getElementById('closeModal').onclick=()=>modal.style.display='none';
+modal.onclick=e=>{if(e.target===modal)modal.style.display='none';}
 </script>
 </body>
 </html>

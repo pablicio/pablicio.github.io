@@ -57,7 +57,7 @@ class TTSController {
         this.chunks = [];
         this.currentIndex = 0;
         this.utterance = null;
-        this.settings = { rate: 1, pitch: 1, volume: 1, voice: null };
+        this.settings = { rate: 1, pitch: 1, volume: 1, voice: null, customVoice: null };
         this.allVoices = [];
         this.speakingCheckInterval = null;
         this.loadVoices();
@@ -216,17 +216,63 @@ class SettingsModal {
             return setTimeout(this.loadVoices.bind(this), 100);
         }
 
-        voiceLabel.textContent = `Voz (${this.allVoices.length} disponíveis)`;
-        const opts = this.allVoices.map((v, i) => `<option value="${i}">${v.name} (${v.lang})</option>`).join('');
-        voiceSelect.innerHTML = `<option value="">Padrão</option>${opts}`;
+        // Combina vozes personalizadas + vozes do sistema
+        const totalVoices = CUSTOM_VOICES.length + this.allVoices.length;
+        voiceLabel.textContent = `Voz (${totalVoices} disponíveis)`;
+        
+        // Grupo de vozes personalizadas
+        const customOpts = CUSTOM_VOICES.map((v, i) => 
+            `<option value="custom-${i}">${v.name}</option>`
+        ).join('');
+        
+        // Grupo de vozes do sistema
+        const systemOpts = this.allVoices.map((v, i) => 
+            `<option value="system-${i}">${v.name} (${v.lang})</option>`
+        ).join('');
+        
+        voiceSelect.innerHTML = `
+            <option value="">🎭 Padrão do Sistema</option>
+            <optgroup label="📦 Vozes Personalizadas">
+                ${customOpts}
+            </optgroup>
+            <optgroup label="💻 Vozes do Sistema">
+                ${systemOpts}
+            </optgroup>
+        `;
     }
 
     applySetting(key, value, displayEl, fmt = v => v) {
         const settingsUpdate = {};
 
         if (key === 'voice') {
-            // Envia o objeto da voz ou null
-            settingsUpdate.voice = value ? this.allVoices[+value] : null;
+            if (!value) {
+                // Padrão do sistema
+                settingsUpdate.voice = null;
+                settingsUpdate.customVoice = null;
+            } else if (value.startsWith('custom-')) {
+                // Voz personalizada
+                const customIndex = parseInt(value.replace('custom-', ''));
+                const customVoice = CUSTOM_VOICES[customIndex];
+                settingsUpdate.voice = null; // Usa voz padrão do sistema
+                settingsUpdate.customVoice = customVoice;
+                // Aplica as configurações da voz personalizada
+                settingsUpdate.rate = customVoice.config.rate;
+                settingsUpdate.pitch = customVoice.config.pitch;
+                settingsUpdate.volume = customVoice.config.volume;
+                
+                // Atualiza os sliders visualmente
+                this.modal.querySelector('#rateSlider').value = customVoice.config.rate;
+                this.modal.querySelector('#rateVal').textContent = customVoice.config.rate.toFixed(1);
+                this.modal.querySelector('#pitchSlider').value = customVoice.config.pitch;
+                this.modal.querySelector('#pitchVal').textContent = customVoice.config.pitch.toFixed(1);
+                this.modal.querySelector('#volumeSlider').value = customVoice.config.volume;
+                this.modal.querySelector('#volumeVal').textContent = Math.round(customVoice.config.volume * 100);
+            } else if (value.startsWith('system-')) {
+                // Voz do sistema
+                const systemIndex = parseInt(value.replace('system-', ''));
+                settingsUpdate.voice = this.allVoices[systemIndex];
+                settingsUpdate.customVoice = null;
+            }
             displayEl.value = value;
         } else {
             // Outras configurações (rate, pitch, volume)

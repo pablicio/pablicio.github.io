@@ -7,17 +7,16 @@
 <meta name="theme-color" content="#4f46e5"/>
 <style>
 :root{
-  --bg:#0f1724;            /* dark background for app feel */
-  --surface:#0b1220;
+  --bg:#071024;
+  --surface:#081427;
   --card:#0f1728;
   --muted:#9aa4b2;
   --accent:#4f46e5;
   --accent-600:#4338ca;
-  --accent-300:#a5b4fc;
-  --highlight:#fff7db;
+  --accent-300:#93c5fd; /* tom suave para seleção */
+  --highlight-bg: rgba(255,255,255,0.06); /* fundo suave claro sobre preto */
+  --highlight-text: #eef2ff; /* texto claro, não amarelo */
   --glass:rgba(255,255,255,0.03);
-  --pill:#0b1228;
-  --positive:#16a34a;
 }
 *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,Roboto,Arial,sans-serif;color:#e6eef8}
 html,body{height:100%}
@@ -32,7 +31,7 @@ body{
   padding:0;
 }
 
-/* Header */
+/* header */
 .header{
   display:flex;
   align-items:center;
@@ -42,21 +41,16 @@ body{
   background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
   border-bottom:1px solid rgba(255,255,255,0.03);
 }
-.app-title{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-}
 .app-title h1{font-size:16px;margin:0;font-weight:700;color:#f8fafc;}
 .app-title p{font-size:12px;margin:0;color:var(--muted)}
 
-/* Settings button */
+/* settings button */
 .icon-btn{
   width:42px;height:42px;border-radius:12px;border:none;background:var(--glass);display:inline-flex;align-items:center;justify-content:center;color:var(--accent-300);cursor:pointer;
   box-shadow:0 6px 24px rgba(15,23,42,0.35);
 }
 
-/* Main content */
+/* main */
 .container{
   flex:1;
   display:flex;
@@ -84,29 +78,47 @@ body{
 
 /* preview */
 .preview{
-  height:56vh; /* main reading area */
+  height:56vh;
   overflow:auto;
   padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);
   background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+  color:#e6eef8;
+  line-height:1.6;
+  font-size:15px;
 }
-.chunk{padding:12px;border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .18s;color:#e6eef8}
+.chunk{padding:12px;border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .18s;color:inherit}
 .chunk:hover{background:rgba(255,255,255,0.02)}
-.chunk.current{background:var(--highlight);color:#0b1220;border-left:4px solid var(--accent);box-shadow:inset 0 0 0 2px rgba(255,200,40,0.03)}
 
-/* progress area inside card */
+/* ===== novo destaque suave e legível para fundo preto ===== */
+.chunk.current{
+  background: var(--highlight-bg);    /* fundo suave, não amarelado */
+  color: var(--highlight-text);       /* texto claro e neutro */
+  border-left:4px solid rgba(99,102,241,0.95); /* borda azul suave */
+  box-shadow: 0 6px 18px rgba(6,8,20,0.5);
+  transform: translateZ(0);
+}
+
+/* seleção de texto consistente e legível */
+.preview ::selection,
+.chunk ::selection,
+.chunk.current ::selection {
+  background: var(--accent-300);
+  color: #071024;
+}
+
+/* progress */
 .progress-bar{height:8px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden;margin-top:8px}
 .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent-300),#60a5fa);transition:width .25s}
 
-/* footer fixed controls */
+/* footer */
 .footer{
   position:fixed;left:12px;right:12px;bottom:12px;padding:12px;border-radius:16px;background:linear-gradient(180deg, rgba(10,14,24,0.9), rgba(8,10,20,0.85));box-shadow:0 12px 40px rgba(2,6,23,0.6);display:flex;align-items:center;gap:12px;z-index:60;
   backdrop-filter: blur(6px);
 }
-.footer .main-controls{display:flex;gap:8px;flex:1;align-items:center;justify-content:center}
 .fab{width:54px;height:54px;border-radius:999px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent-600));color:white;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 12px 30px rgba(79,70,229,0.28);cursor:pointer}
 .small-btn{width:44px;height:44px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
 
-/* settings drawer */
+/* drawer */
 .drawer{
   position:fixed;right:12px;bottom:84px;left:12px;border-radius:12px;padding:12px;background:linear-gradient(180deg,#071226ee,#051024ee);box-shadow:0 10px 40px rgba(2,6,23,0.6);z-index:70;display:none;flex-direction:column;gap:10px;max-height:50vh;overflow:auto;
 }
@@ -116,11 +128,8 @@ body{
 .checkbox{display:inline-flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
 .small-note{font-size:12px;color:var(--muted)}
 
-/* responsive tweaks */
-@media(min-width:720px){
-  .preview{height:60vh}
-  .drawer{left:auto;right:24px;bottom:84px;width:360px}
-}
+/* responsive */
+@media(min-width:720px){ .preview{height:60vh} .drawer{left:auto;right:24px;bottom:84px;width:360px} }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -157,7 +166,6 @@ body{
     </div>
   </main>
 
-  <!-- settings drawer -->
   <div id="drawer" class="drawer card" role="dialog" aria-hidden="true">
     <div class="row">
       <div class="label">Modo</div>
@@ -188,7 +196,6 @@ body{
     </div>
   </div>
 
-  <!-- footer controls fixed -->
   <div class="footer" role="toolbar" aria-label="Controles">
     <div class="main-controls">
       <button id="prevBtn" class="small-btn" title="Anterior">◀︎</button>
@@ -228,12 +235,10 @@ const autoAdvanceEl = document.getElementById('autoAdvance');
 
 let chunks = [], chunkHtml = [], currentIndex = 0, utterance = null, voices = [], combinedName = '';
 
-/* Small helpers */
 function showStatus(s){ statusEl.textContent = s; }
 function updatePosition(){ posEl.textContent = `${Math.max(0, chunks.length?currentIndex+1:0)} de ${chunks.length}`; progressFill.style.width = chunks.length? Math.round(((currentIndex+1)/chunks.length)*100) + '%' : '0%'; }
 function sanitizeText(t){ return t.replace(/\s+\n/g,'\n').replace(/\s{2,}/g,' ').trim(); }
 
-/* Chunk rendering */
 function renderChunksFromText(md){
   if(!md) return;
   const mode = modeSelect.value;
@@ -260,7 +265,6 @@ function renderChunksFromText(md){
   updatePosition();
 }
 
-/* Combine multiple files */
 async function loadFiles(fileList){
   if(!fileList || !fileList.length) return;
   let merged = '';
@@ -277,7 +281,6 @@ async function loadFiles(fileList){
   renderChunksFromText(merged);
 }
 
-/* highlight and speak */
 function highlight(i){
   preview.querySelectorAll('.chunk').forEach(c=>c.classList.remove('current'));
   const el = preview.querySelector(`.chunk[data-index='${i}']`);
@@ -306,27 +309,17 @@ function speakIndex(i){
   speechSynthesis.speak(utterance);
 }
 
-/* UI event wiring */
+/* UI wiring */
 fileIn.addEventListener('change', e => loadFiles(e.target.files));
+preview.addEventListener('click', e => { const ch = e.target.closest('.chunk'); if(!ch) return; const idx = Number(ch.dataset.index); currentIndex = idx; speakIndex(idx); });
 
-preview.addEventListener('click', e => {
-  const ch = e.target.closest('.chunk'); if(!ch) return;
-  const idx = Number(ch.dataset.index); currentIndex = idx; speakIndex(idx);
-});
-
-playBtn.addEventListener('click', () => {
-  if(!chunks.length) return;
-  if(speechSynthesis.speaking && speechSynthesis.paused){ speechSynthesis.resume(); showStatus('lendo'); return; }
-  speakIndex(currentIndex);
-});
+playBtn.addEventListener('click', () => { if(!chunks.length) return; if(speechSynthesis.speaking && speechSynthesis.paused){ speechSynthesis.resume(); showStatus('lendo'); return; } speakIndex(currentIndex); });
 pauseBtn.addEventListener('click', ()=> { if(speechSynthesis.speaking) speechSynthesis.pause(); showStatus('pausado'); });
 stopBtn.addEventListener('click', ()=> { speechSynthesis.cancel(); utterance = null; showStatus('parado'); });
 prevBtn.addEventListener('click', ()=> { currentIndex = Math.max(0, currentIndex - 1); highlight(currentIndex); speakIndex(currentIndex); });
 nextBtn.addEventListener('click', ()=> { currentIndex = Math.min(chunks.length - 1, currentIndex + 1); highlight(currentIndex); speakIndex(currentIndex); });
 
 modeSelect.addEventListener('change', () => {
-  // re-render preserving loaded markdown if any
-  // to keep things simple, reparse current preview HTML text
   let combined = '';
   preview.querySelectorAll('.chunk').forEach(c => combined += '\n\n' + (c.textContent || ''));
   renderChunksFromText(combined || '');
@@ -337,57 +330,24 @@ clearBtn.addEventListener('click', () => {
   preview.innerHTML = ''; fileNameEl.textContent = 'Nenhum arquivo carregado'; progressFill.style.width = '0%'; showStatus('limpo'); updatePosition();
 });
 
-/* gear drawer toggle */
+/* drawer toggle */
 gearBtn.addEventListener('click', () => {
   const open = drawer.style.display === 'flex';
   drawer.style.display = open ? 'none' : 'flex';
   drawer.setAttribute('aria-hidden', open ? 'true' : 'false');
 });
 
-/* voices loading robust */
-function setVoicesList(vlist){
-  voices = vlist || [];
-  voiceSelect.innerHTML = '';
-  voices.forEach(v => {
-    const opt = document.createElement('option');
-    opt.value = v.name;
-    opt.textContent = `${v.name} — ${v.lang}`;
-    voiceSelect.appendChild(opt);
-  });
-  const prefer = voices.find(v => /pt[-_]?BR|pt-BR|portuguese/i.test(v.lang));
-  if(prefer) voiceSelect.value = prefer.name;
-}
-function tryLoadVoices(timeout = 3000, interval = 120){
-  return new Promise(resolve => {
-    let waited = 0;
-    function attempt(){
-      const v = speechSynthesis.getVoices();
-      if(v && v.length){ setVoicesList(v); resolve(true); return; }
-      if(waited >= timeout){ setVoicesList([]); resolve(false); return; }
-      waited += interval;
-      setTimeout(attempt, interval);
-    }
-    attempt();
-  });
-}
-refreshVoicesBtn.addEventListener('click', async () => {
-  refreshVoicesBtn.disabled = true;
-  await tryLoadVoices(4000,120);
-  refreshVoicesBtn.disabled = false;
-});
+/* voices */
+function setVoicesList(vlist){ voices = vlist || []; voiceSelect.innerHTML = ''; voices.forEach(v => { const opt = document.createElement('option'); opt.value = v.name; opt.textContent = `${v.name} — ${v.lang}`; voiceSelect.appendChild(opt); }); const prefer = voices.find(v => /pt[-_]?BR|pt-BR|portuguese/i.test(v.lang)); if(prefer) voiceSelect.value = prefer.name; }
+function tryLoadVoices(timeout = 3000, interval = 120){ return new Promise(resolve => { let waited = 0; function attempt(){ const v = speechSynthesis.getVoices(); if(v && v.length){ setVoicesList(v); resolve(true); return; } if(waited >= timeout){ setVoicesList([]); resolve(false); return; } waited += interval; setTimeout(attempt, interval); } attempt(); }); }
+refreshVoicesBtn.addEventListener('click', async () => { refreshVoicesBtn.disabled = true; await tryLoadVoices(4000,120); refreshVoicesBtn.disabled = false; });
 speechSynthesis.onvoiceschanged = () => { const v = speechSynthesis.getVoices(); if(v && v.length) setVoicesList(v); };
 setTimeout(() => tryLoadVoices(3000,120), 50);
 
-/* keyboard shortcuts */
-window.addEventListener('keydown', e => {
-  if(e.key === 'ArrowLeft'){ e.preventDefault(); prevBtn.click(); }
-  if(e.key === 'ArrowRight'){ e.preventDefault(); nextBtn.click(); }
-  if(e.key === ' '){ e.preventDefault(); if(speechSynthesis.speaking && !speechSynthesis.paused) pauseBtn.click(); else playBtn.click(); }
-});
+/* keyboard */
+window.addEventListener('keydown', e => { if(e.key === 'ArrowLeft'){ e.preventDefault(); prevBtn.click(); } if(e.key === 'ArrowRight'){ e.preventDefault(); nextBtn.click(); } if(e.key === ' '){ e.preventDefault(); if(speechSynthesis.speaking && !speechSynthesis.paused) pauseBtn.click(); else playBtn.click(); } });
 
-/* initial hints */
-showStatus('pronto');
-updatePosition();
+showStatus('pronto'); updatePosition();
 </script>
 </body>
 </html>

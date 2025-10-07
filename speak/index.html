@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Speak — Markdown TTS</title>
+<meta name="theme-color" content="#4f46e5"/>
+<style>
+:root{
+  --bg:#0f1724;            /* dark background for app feel */
+  --surface:#0b1220;
+  --card:#0f1728;
+  --muted:#9aa4b2;
+  --accent:#4f46e5;
+  --accent-600:#4338ca;
+  --accent-300:#a5b4fc;
+  --highlight:#fff7db;
+  --glass:rgba(255,255,255,0.03);
+  --pill:#0b1228;
+  --positive:#16a34a;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,Roboto,Arial,sans-serif;color:#e6eef8}
+html,body{height:100%}
+body{
+  background:linear-gradient(180deg,#071024 0%, #081427 100%);
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  padding:0;
+}
+
+/* Header */
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 16px;
+  gap:8px;
+  background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+  border-bottom:1px solid rgba(255,255,255,0.03);
+}
+.app-title{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.app-title h1{font-size:16px;margin:0;font-weight:700;color:#f8fafc;}
+.app-title p{font-size:12px;margin:0;color:var(--muted)}
+
+/* Settings button */
+.icon-btn{
+  width:42px;height:42px;border-radius:12px;border:none;background:var(--glass);display:inline-flex;align-items:center;justify-content:center;color:var(--accent-300);cursor:pointer;
+  box-shadow:0 6px 24px rgba(15,23,42,0.35);
+}
+
+/* Main content */
+.container{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:14px;
+  overflow:hidden;
+}
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius:12px;
+  padding:12px;
+  box-shadow:0 8px 30px rgba(2,6,23,0.35);
+  border:1px solid rgba(255,255,255,0.03);
+}
+
+/* file loader */
+.file-row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.file-btn{
+  background:linear-gradient(90deg,var(--accent),var(--accent-600));
+  color:white;padding:10px 14px;border-radius:12px;border:none;font-weight:700;cursor:pointer;
+  display:inline-flex;gap:8px;align-items:center;box-shadow:0 8px 30px rgba(79,70,229,0.18)
+}
+.file-name{color:var(--muted);font-size:13px;flex:1;text-align:left;margin-left:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* preview */
+.preview{
+  height:56vh; /* main reading area */
+  overflow:auto;
+  padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);
+  background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+}
+.chunk{padding:12px;border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .18s;color:#e6eef8}
+.chunk:hover{background:rgba(255,255,255,0.02)}
+.chunk.current{background:var(--highlight);color:#0b1220;border-left:4px solid var(--accent);box-shadow:inset 0 0 0 2px rgba(255,200,40,0.03)}
+
+/* progress area inside card */
+.progress-bar{height:8px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent-300),#60a5fa);transition:width .25s}
+
+/* footer fixed controls */
+.footer{
+  position:fixed;left:12px;right:12px;bottom:12px;padding:12px;border-radius:16px;background:linear-gradient(180deg, rgba(10,14,24,0.9), rgba(8,10,20,0.85));box-shadow:0 12px 40px rgba(2,6,23,0.6);display:flex;align-items:center;gap:12px;z-index:60;
+  backdrop-filter: blur(6px);
+}
+.footer .main-controls{display:flex;gap:8px;flex:1;align-items:center;justify-content:center}
+.fab{width:54px;height:54px;border-radius:999px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent-600));color:white;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 12px 30px rgba(79,70,229,0.28);cursor:pointer}
+.small-btn{width:44px;height:44px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* settings drawer */
+.drawer{
+  position:fixed;right:12px;bottom:84px;left:12px;border-radius:12px;padding:12px;background:linear-gradient(180deg,#071226ee,#051024ee);box-shadow:0 10px 40px rgba(2,6,23,0.6);z-index:70;display:none;flex-direction:column;gap:10px;max-height:50vh;overflow:auto;
+}
+.row{display:flex;gap:8px;align-items:center}
+.label{font-size:13px;color:var(--muted);min-width:72px}
+.select,select,input[type=range]{background:transparent;color:#e6eef8;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px}
+.checkbox{display:inline-flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
+.small-note{font-size:12px;color:var(--muted)}
+
+/* responsive tweaks */
+@media(min-width:720px){
+  .preview{height:60vh}
+  .drawer{left:auto;right:24px;bottom:84px;width:360px}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="app-title">
+      <h1>Speak</h1>
+      <p>Leitura por voz de Markdown</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="gearBtn" class="icon-btn" title="Configurações">⚙️</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <div class="file-row">
+        <label for="fileIn" class="file-btn" title="Carregar markdown">📂 Carregar Markdown</label>
+        <input id="fileIn" type="file" accept=".md,.markdown,.txt" style="display:none"/>
+        <div id="fileName" class="file-name">Nenhum arquivo carregado</div>
+      </div>
+      <div style="margin-top:10px" class="small-note">Toque em qualquer trecho para pular para ele</div>
+      <div class="progress-bar card" style="margin-top:10px">
+        <div id="progressFill" class="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="card" style="flex:1;display:flex;flex-direction:column;gap:8px;">
+      <div id="preview" class="preview" aria-live="polite"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;color:var(--muted);font-size:13px">
+        <div id="pos">0 de 0</div>
+        <div id="status">parado</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- settings drawer -->
+  <div id="drawer" class="drawer card" role="dialog" aria-hidden="true">
+    <div class="row">
+      <div class="label">Modo</div>
+      <select id="modeSelect" class="select">
+        <option value="paragraph">Parágrafo</option>
+        <option value="sentence">Frase</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="label">Voz</div>
+      <select id="voiceSelect" class="select" style="flex:1"></select>
+      <button id="refreshVoices" class="small-btn" title="Atualizar vozes">🔄</button>
+    </div>
+
+    <div class="row">
+      <div class="label">Velocidade</div>
+      <input id="rate" type="range" min="0.6" max="2" step="0.1" value="1" style="flex:1"/>
+    </div>
+
+    <div class="row">
+      <label class="checkbox"><input id="autoAdvance" type="checkbox" checked/> Avançar automaticamente</label>
+    </div>
+
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div class="small-note">Carregar mais de um arquivo combina os textos</div>
+      <button id="clearBtn" class="small-btn" title="Limpar">🧹</button>
+    </div>
+  </div>
+
+  <!-- footer controls fixed -->
+  <div class="footer" role="toolbar" aria-label="Controles">
+    <div class="main-controls">
+      <button id="prevBtn" class="small-btn" title="Anterior">◀︎</button>
+      <button id="playBtn" class="fab" title="Ler">▶</button>
+      <button id="pauseBtn" class="small-btn" title="Pausar">⏸</button>
+      <button id="nextBtn" class="small-btn" title="Próximo">▶︎</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="stopBtn" class="small-btn" title="Parar">⏹</button>
+    </div>
+  </div>
+
+<script>
+/* Core elements */
+const fileIn = document.getElementById('fileIn');
+const fileNameEl = document.getElementById('fileName');
+const preview = document.getElementById('preview');
+const posEl = document.getElementById('pos');
+const statusEl = document.getElementById('status');
+const progressFill = document.getElementById('progressFill');
+
+const gearBtn = document.getElementById('gearBtn');
+const drawer = document.getElementById('drawer');
+const clearBtn = document.getElementById('clearBtn');
+
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const stopBtn = document.getElementById('stopBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+const voiceSelect = document.getElementById('voiceSelect');
+const refreshVoicesBtn = document.getElementById('refreshVoices');
+const rateEl = document.getElementById('rate');
+const modeSelect = document.getElementById('modeSelect');
+const autoAdvanceEl = document.getElementById('autoAdvance');
+
+let chunks = [], chunkHtml = [], currentIndex = 0, utterance = null, voices = [], combinedName = '';
+
+/* Small helpers */
+function showStatus(s){ statusEl.textContent = s; }
+function updatePosition(){ posEl.textContent = `${Math.max(0, chunks.length?currentIndex+1:0)} de ${chunks.length}`; progressFill.style.width = chunks.length? Math.round(((currentIndex+1)/chunks.length)*100) + '%' : '0%'; }
+function sanitizeText(t){ return t.replace(/\s+\n/g,'\n').replace(/\s{2,}/g,' ').trim(); }
+
+/* Chunk rendering */
+function renderChunksFromText(md){
+  if(!md) return;
+  const mode = modeSelect.value;
+  const mdNoCode = md.replace(/```[\s\S]*?```/g,' ');
+  if(mode === 'paragraph'){
+    chunks = mdNoCode.split(/\n{2,}/g).map(t=>t.trim()).filter(Boolean);
+  } else {
+    const text = mdNoCode.replace(/`[^`]*`/g,' ').replace(/\n+/g,' ');
+    const parts = text.split(/(?<=[\.\?!])\s+(?=[A-ZÀ-Ÿ0-9])/u);
+    if(parts.length>300){ chunks = []; for(let i=0;i<parts.length;i+=2) chunks.push(parts.slice(i,i+2).join(' '));}
+    else chunks = parts.map(p=>p.trim()).filter(Boolean);
+  }
+  chunkHtml = chunks.map(c => marked.parse(c));
+  preview.innerHTML = '';
+  chunkHtml.forEach((html,i) => {
+    const div = document.createElement('div');
+    div.className = 'chunk';
+    div.dataset.index = i;
+    div.innerHTML = html;
+    preview.appendChild(div);
+  });
+  if(currentIndex >= chunks.length) currentIndex = Math.max(0, chunks.length-1);
+  highlight(currentIndex);
+  updatePosition();
+}
+
+/* Combine multiple files */
+async function loadFiles(fileList){
+  if(!fileList || !fileList.length) return;
+  let merged = '';
+  let names = [];
+  for(const f of fileList){
+    try{
+      const txt = await f.text();
+      merged += '\n\n' + txt;
+      names.push(f.name);
+    } catch(e){}
+  }
+  combinedName = names.join(' + ');
+  fileNameEl.textContent = combinedName || 'Arquivo carregado';
+  renderChunksFromText(merged);
+}
+
+/* highlight and speak */
+function highlight(i){
+  preview.querySelectorAll('.chunk').forEach(c=>c.classList.remove('current'));
+  const el = preview.querySelector(`.chunk[data-index='${i}']`);
+  if(el){ el.classList.add('current'); el.scrollIntoView({behavior:'smooth',block:'center'}); }
+  updatePosition();
+}
+
+function chunkText(i){
+  const tmp = document.createElement('div'); tmp.innerHTML = chunkHtml[i] || '';
+  return sanitizeText(tmp.textContent || '');
+}
+
+function speakIndex(i){
+  if(!('speechSynthesis' in window)){ alert('Síntese de voz não suportada'); return; }
+  if(i < 0 || i >= chunks.length) return;
+  speechSynthesis.cancel();
+  const text = chunkText(i);
+  if(!text) return;
+  utterance = new SpeechSynthesisUtterance(text);
+  const chosen = voices.find(v=>v.name === voiceSelect.value);
+  if(chosen) utterance.voice = chosen;
+  utterance.rate = parseFloat(rateEl.value) || 1;
+  utterance.onstart = () => { currentIndex = i; highlight(i); showStatus('lendo'); };
+  utterance.onend = () => { utterance = null; showStatus('pausado'); if(autoAdvanceEl.checked && currentIndex < chunks.length - 1) setTimeout(()=>speakIndex(currentIndex + 1), 200); else if(currentIndex >= chunks.length - 1) showStatus('concluido'); };
+  utterance.onerror = e => { console.error(e); utterance = null; showStatus('erro'); };
+  speechSynthesis.speak(utterance);
+}
+
+/* UI event wiring */
+fileIn.addEventListener('change', e => loadFiles(e.target.files));
+
+preview.addEventListener('click', e => {
+  const ch = e.target.closest('.chunk'); if(!ch) return;
+  const idx = Number(ch.dataset.index); currentIndex = idx; speakIndex(idx);
+});
+
+playBtn.addEventListener('click', () => {
+  if(!chunks.length) return;
+  if(speechSynthesis.speaking && speechSynthesis.paused){ speechSynthesis.resume(); showStatus('lendo'); return; }
+  speakIndex(currentIndex);
+});
+pauseBtn.addEventListener('click', ()=> { if(speechSynthesis.speaking) speechSynthesis.pause(); showStatus('pausado'); });
+stopBtn.addEventListener('click', ()=> { speechSynthesis.cancel(); utterance = null; showStatus('parado'); });
+prevBtn.addEventListener('click', ()=> { currentIndex = Math.max(0, currentIndex - 1); highlight(currentIndex); speakIndex(currentIndex); });
+nextBtn.addEventListener('click', ()=> { currentIndex = Math.min(chunks.length - 1, currentIndex + 1); highlight(currentIndex); speakIndex(currentIndex); });
+
+modeSelect.addEventListener('change', () => {
+  // re-render preserving loaded markdown if any
+  // to keep things simple, reparse current preview HTML text
+  let combined = '';
+  preview.querySelectorAll('.chunk').forEach(c => combined += '\n\n' + (c.textContent || ''));
+  renderChunksFromText(combined || '');
+});
+
+clearBtn.addEventListener('click', () => {
+  chunks = []; chunkHtml = []; currentIndex = 0;
+  preview.innerHTML = ''; fileNameEl.textContent = 'Nenhum arquivo carregado'; progressFill.style.width = '0%'; showStatus('limpo'); updatePosition();
+});
+
+/* gear drawer toggle */
+gearBtn.addEventListener('click', () => {
+  const open = drawer.style.display === 'flex';
+  drawer.style.display = open ? 'none' : 'flex';
+  drawer.setAttribute('aria-hidden', open ? 'true' : 'false');
+});
+
+/* voices loading robust */
+function setVoicesList(vlist){
+  voices = vlist || [];
+  voiceSelect.innerHTML = '';
+  voices.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.name;
+    opt.textContent = `${v.name} — ${v.lang}`;
+    voiceSelect.appendChild(opt);
+  });
+  const prefer = voices.find(v => /pt[-_]?BR|pt-BR|portuguese/i.test(v.lang));
+  if(prefer) voiceSelect.value = prefer.name;
+}
+function tryLoadVoices(timeout = 3000, interval = 120){
+  return new Promise(resolve => {
+    let waited = 0;
+    function attempt(){
+      const v = speechSynthesis.getVoices();
+      if(v && v.length){ setVoicesList(v); resolve(true); return; }
+      if(waited >= timeout){ setVoicesList([]); resolve(false); return; }
+      waited += interval;
+      setTimeout(attempt, interval);
+    }
+    attempt();
+  });
+}
+refreshVoicesBtn.addEventListener('click', async () => {
+  refreshVoicesBtn.disabled = true;
+  await tryLoadVoices(4000,120);
+  refreshVoicesBtn.disabled = false;
+});
+speechSynthesis.onvoiceschanged = () => { const v = speechSynthesis.getVoices(); if(v && v.length) setVoicesList(v); };
+setTimeout(() => tryLoadVoices(3000,120), 50);
+
+/* keyboard shortcuts */
+window.addEventListener('keydown', e => {
+  if(e.key === 'ArrowLeft'){ e.preventDefault(); prevBtn.click(); }
+  if(e.key === 'ArrowRight'){ e.preventDefault(); nextBtn.click(); }
+  if(e.key === ' '){ e.preventDefault(); if(speechSynthesis.speaking && !speechSynthesis.paused) pauseBtn.click(); else playBtn.click(); }
+});
+
+/* initial hints */
+showStatus('pronto');
+updatePosition();
+</script>
+</body>
+</html>

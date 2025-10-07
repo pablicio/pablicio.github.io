@@ -35,12 +35,6 @@ body{display:flex;flex-direction:column;}
 .app-title h1{font-size:16px;font-weight:700;color:#f8fafc;}
 .app-title p{font-size:12px;color:var(--muted)}
 
-/* settings button */
-.icon-btn{width:42px;height:42px;border-radius:12px;border:none;background:var(--glass);
-  display:inline-flex;align-items:center;justify-content:center;color:var(--accent-300);cursor:pointer;
-  box-shadow:0 6px 24px rgba(15,23,42,0.35);
-}
-
 /* file card fixo */
 .file-card{
   position:fixed;top:66px;left:0;right:0;z-index:45;
@@ -146,7 +140,19 @@ const pauseBtn=document.getElementById('pauseBtn');
 const stopBtn=document.getElementById('stopBtn');
 const prevBtn=document.getElementById('prevBtn');
 const nextBtn=document.getElementById('nextBtn');
-let chunks=[],chunkHtml=[],currentIndex=0,utterance=null,voices=[];
+let chunks=[],chunkHtml=[],currentIndex=0,utterance=null;
+
+/* remove marcações markdown antes da leitura */
+function cleanMarkdown(text){
+  return text
+    .replace(/```[\s\S]*?```/g, '')       // blocos de código
+    .replace(/`([^`]+)`/g, '$1')          // crases inline
+    .replace(/!\[.*?\]\(.*?\)/g, '')      // imagens
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // links
+    .replace(/[*_~#>`-]+/g, '')           // símbolos markdown
+    .replace(/\s{2,}/g, ' ')              // espaços extras
+    .trim();
+}
 
 function renderChunks(md){
   const parts=md.split(/\n{2,}/).filter(Boolean);
@@ -159,19 +165,26 @@ function renderChunks(md){
     preview.appendChild(div);
   });
 }
+
 function speakIndex(i){
   if(i<0||i>=chunks.length)return;
   speechSynthesis.cancel();
-  utterance=new SpeechSynthesisUtterance(chunks[i]);
+  const text = cleanMarkdown(chunks[i]);
+  if(!text.trim()){ // pula blocos vazios
+    return setTimeout(()=>speakIndex(i+1),200);
+  }
+  utterance=new SpeechSynthesisUtterance(text);
   utterance.onstart=()=>highlight(i);
   utterance.onend=()=>{if(i<chunks.length-1)setTimeout(()=>speakIndex(i+1),300);}
   speechSynthesis.speak(utterance);
 }
+
 function highlight(i){
   preview.querySelectorAll('.chunk').forEach(c=>c.classList.remove('current'));
   const el=preview.querySelector(`.chunk[data-index='${i}']`);
   if(el){el.classList.add('current');el.scrollIntoView({behavior:'smooth',block:'center'});}
 }
+
 fileIn.onchange=async e=>{
   const f=e.target.files[0];
   if(!f)return;
@@ -180,10 +193,12 @@ fileIn.onchange=async e=>{
   fileNameEl.textContent=f.name;
   fileNameEl.classList.add('flash');setTimeout(()=>fileNameEl.classList.remove('flash'),700);
 }
+
 preview.onclick=e=>{
   const c=e.target.closest('.chunk');
   if(c){currentIndex=+c.dataset.index;speakIndex(currentIndex);}
 }
+
 playBtn.onclick=()=>speakIndex(currentIndex);
 pauseBtn.onclick=()=>speechSynthesis.pause();
 stopBtn.onclick=()=>speechSynthesis.cancel();

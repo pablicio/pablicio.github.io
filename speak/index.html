@@ -6,26 +6,36 @@
 <title>Speak — Markdown TTS</title>
 <meta name="theme-color" content="#4f46e5"/>
 <link rel="stylesheet" href="style.css">
+<!-- KaTeX para fórmulas matemáticas -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<!-- Highlight.js and Python language -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/nord.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<!-- Mermaid.js para diagramas -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked-katex-extension@3.0.0/lib/index.umd.js"></script>
 <script src="custom-voices.js"></script>
 </head>
 <body>
 
 <header class="header">
   <div class="app-title">
-    <h1>Speak</h1>
-    <p>Leitura por voz de Markdown</p>
+    <h1>SpeakDoc</h1>
+    <p>Leitor de documentação por voz</p>
   </div>
   <button id="gearBtn" class="icon-btn" title="Configurações">⚙️</button>
 </header>
 
 <div class="file-card">
   <div class="file-row">
-    <label for="fileIn" class="file-btn">📂 Carregar Markdown</label>
+    <label for="fileIn" class="file-btn">📄 Abrir documento</label>
     <input id="fileIn" type="file" accept=".md,.markdown,.txt" hidden/>
-    <div id="fileName" class="file-name">Nenhum arquivo carregado</div>
+    <div id="fileName" class="file-name">Nenhum documento carregado</div>
   </div>
-  <div class="small-note">Toque em qualquer trecho para pular para ele</div>
+  <div class="small-note">Clique em qualquer trecho para iniciar a leitura</div>
 </div>
 
 <div id="preview" class="preview"></div>
@@ -36,6 +46,50 @@
   <button id="nextBtn" class="small-btn">▶︎</button>
 </footer>
 
-<script  src="app.js"></script>
+<script>
+  // Initialize mermaid
+  mermaid.initialize({ startOnLoad: false });
+
+  // Configure marked and KaTeX
+  marked.use({
+    mangle: false,
+    headerIds: false,
+    gfm: true
+  });
+
+  marked.use(markedKatex({
+    throwOnError: false,
+    strict: false
+  }));
+
+  // Configure highlight.js
+  hljs.configure({
+    languages: ['python'],
+    ignoreUnescapedHTML: true
+  });
+
+  // Post-render handler
+  function highlightAllChunks() {
+    // Code highlighting
+    document.querySelectorAll('pre code').forEach(block => {
+      if (!block.classList.contains('language-mermaid')) {
+        hljs.highlightBlock(block);
+      }
+    });
+
+    // Mermaid diagrams
+    document.querySelectorAll('.language-mermaid').forEach(block => {
+      if (!block.parentNode.classList.contains('mermaid-rendered')) {
+        const div = document.createElement('div');
+        div.className = 'mermaid';
+        div.textContent = block.textContent;
+        block.parentNode.replaceWith(div);
+        mermaid.init(undefined, div);
+      }
+    });
+  }
+  window.highlightAllChunks = highlightAllChunks;
+</script>
+<script src="app.js"></script>
 </body>
 </html>

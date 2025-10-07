@@ -9,30 +9,45 @@ class MarkdownProcessor {
         this.chunkHtml = [];
     }
 
+    // Limpa markdown apenas para TTS (não para visualização)
     cleanMarkdown(t) {
-        return t.replace(/```[\s\S]*?```/g, '')
+        // NÃO remove blocos de código nem fórmulas para visualização!
+        return t
+            // Remove blocos de código para TTS
+            .replace(/```[\s\S]*?```/g, '')
+            // Remove inline code para TTS
             .replace(/`([^`]+)`/g, '$1')
+            // Remove imagens
             .replace(/!\[.*?\]\(.*?\)/g, '')
+            // Links: só o texto
             .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+            // Remove títulos
             .replace(/^\s*#{1,6}\s+/gm, '')
+            // Negrito/itálico
             .replace(/\*\*\*(.+?)\*\*\*/g, '$1')
             .replace(/\*\*(.+?)\*\*/g, '$1')
             .replace(/\*(.+?)\*/g, '$1')
             .replace(/__(.+?)__/g, '$1')
             .replace(/_(.+?)_/g,'$1')
             .replace(/~~(.+?)~~/g,'$1')
+            // Citações
             .replace(/^\s*>+\s?/gm,'')
+            // Listas
             .replace(/^\s*[-*+]\s+/gm,'')
             .replace(/^\s*\d+\.\s+/gm,'')
+            // Espaços extras
             .replace(/\s{2,}/g,' ').trim();
     }
 
     renderChunks(md) {
+        // NÃO limpe markdown aqui! Apenas divida e renderize normalmente.
         this.chunks = md.split(/\n{2,}/).filter(Boolean);
         this.chunkHtml = this.chunks.map(p => marked.parse(p));
         this.preview.innerHTML = this.chunkHtml.map((html, i) =>
             `<div class="chunk" data-index="${i}">${html}</div>`
         ).join('');
+        // Realce de sintaxe após renderização
+        if (window.highlightAllChunks) window.highlightAllChunks();
         return this.chunks;
     }
 

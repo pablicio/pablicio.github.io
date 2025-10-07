@@ -50,63 +50,55 @@
   // Initialize mermaid
   mermaid.initialize({ startOnLoad: false });
 
-  // Configure marked with proper math handling
   marked.use({
     mangle: false,
     headerIds: false,
     breaks: false
   });
 
-  // Custom KaTeX extension for marked
+  // Improved math extension
   marked.use({
     extensions: [{
       name: 'math',
-      level: 'inline',
-      start(src) { return src.indexOf('$'); },
+      level: 'block',
       tokenizer(src) {
-        const blockRule = /^\$\$([^$]+)\$\$/;
-        const inlineRule = /^\$([^$\n]+?)\$/;
-        
-        const blockMatch = blockRule.exec(src);
-        if (blockMatch) {
+        // Display math (block)
+        const displayMatch = src.match(/^\$\$([\s\S]+?)\$\$/);
+        if (displayMatch) {
           return {
             type: 'math',
-            raw: blockMatch[0],
-            text: blockMatch[1].trim(),
-            display: true
+            raw: displayMatch[0],
+            text: displayMatch[1].trim(),
+            display: true,
+            tokens: []
           };
         }
-
-        const inlineMatch = inlineRule.exec(src);
+        
+        // Inline math
+        const inlineMatch = src.match(/^\$([^\n$]+?)\$/);
         if (inlineMatch) {
           return {
             type: 'math',
             raw: inlineMatch[0],
             text: inlineMatch[1].trim(),
-            display: false
+            display: false,
+            tokens: []
           };
         }
       },
       renderer(token) {
         try {
-          const tex = token.text
-            .replace(/&amp;/g, '&')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/~/g, '\\sim');
-            
-          return katex.renderToString(tex, {
+          return katex.renderToString(token.text, {
             displayMode: token.display,
             throwOnError: false,
-            strict: false,
             trust: true,
+            strict: 'ignore',
             macros: {
-              "\\P": "\\mathbb{P}",
-              "\\E": "\\mathbb{E}"
+              '\\text': '\\mathrm'
             }
           });
-        } catch (err) {
-          console.warn('KaTeX error:', err);
+        } catch (e) {
+          console.warn('KaTeX:', e);
           return token.raw;
         }
       }

@@ -11,32 +11,32 @@ class MarkdownProcessor {
 
     // Limpa markdown apenas para TTS (não para visualização)
     cleanMarkdown(t) {
-        // NÃO remove blocos de código nem fórmulas para visualização!
         return t
-            // Remove blocos de código para TTS
+            // Remove code blocks and inline code
             .replace(/```[\s\S]*?```/g, '')
-            // Remove inline code para TTS
-            .replace(/`([^`]+)`/g, '$1')
-            // Remove imagens
+            .replace(/`[^`]+`/g, '')
+            // Remove math blocks and inline math
+            .replace(/\$\$[\s\S]*?\$\$/g, '')
+            .replace(/\$[^$\n]+?\$/g, '')
+            // Remove images and links
             .replace(/!\[.*?\]\(.*?\)/g, '')
-            // Links: só o texto
             .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
-            // Remove títulos
+            // Remove headers
             .replace(/^\s*#{1,6}\s+/gm, '')
-            // Negrito/itálico
+            // Remove emphasis
             .replace(/\*\*\*(.+?)\*\*\*/g, '$1')
             .replace(/\*\*(.+?)\*\*/g, '$1')
             .replace(/\*(.+?)\*/g, '$1')
             .replace(/__(.+?)__/g, '$1')
             .replace(/_(.+?)_/g,'$1')
             .replace(/~~(.+?)~~/g,'$1')
-            // Citações
+            // Remove blockquotes and lists
             .replace(/^\s*>+\s?/gm,'')
-            // Listas
             .replace(/^\s*[-*+]\s+/gm,'')
             .replace(/^\s*\d+\.\s+/gm,'')
-            // Espaços extras
-            .replace(/\s{2,}/g,' ').trim();
+            // Clean up whitespace
+            .replace(/\s{2,}/g,' ')
+            .trim();
     }
 
     renderChunks(md) {

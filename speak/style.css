@@ -44,15 +44,33 @@ body{display:flex;flex-direction:column;}
 .file-name.flash{color:#c7d2fe;text-shadow:0 0 6px rgba(147,197,253,0.6);}
 .small-note{font-size:12px;color:var(--muted);margin-top:8px}
 
-.preview{
-  position:fixed;top:150px;bottom:100px;left:0;right:0;overflow-y:auto;
-  -webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;
-  padding:16px;scroll-behavior:smooth;
+.preview {
+  position: fixed;
+  top: 150px;
+  bottom: 100px;
+  left: 0;
+  right: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  padding: 16px;
+  scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.chunk{
-  background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);
-  border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;
-  transition:all .18s ease;opacity:.95;
+
+.chunk {
+  width: 100%;
+  max-width: 768px;
+  background: linear-gradient(180deg,rgba(255,255,255,0.01),transparent);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all .18s ease;
+  opacity: .95;
 }
 .chunk:hover{background:rgba(255,255,255,0.02);opacity:1}
 .chunk.current{
@@ -91,11 +109,19 @@ body{display:flex;flex-direction:column;}
   margin: 2px 0;
 }
 .chunk pre {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   background: #1e2430;
   border-radius: 8px;
   padding: 16px;
   margin: 12px 0;
-  overflow-x: auto;
+}
+.chunk img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em auto;
 }
 .chunk kbd, .chunk .math, .chunk .katex {
   background: #232b3a;
@@ -128,7 +154,9 @@ body{display:flex;flex-direction:column;}
 }
 .chunk .math-display,
 .chunk .katex-display {
+  width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 1em 0;
   margin: 0.5em 0;
   background: transparent;

@@ -39,15 +39,109 @@ class MarkdownProcessor {
             .trim();
     }
 
+    // Substitui expressões matemáticas no DOM (evita tocar dentro de code/pre/a/script/style)
+    _renderMathInNode(container) {
+        const isIgnored = (el) => el.closest && el.closest('code, pre, a, script, style');
+
+        // coletar nós de texto aceitos (snapshot)
+        const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+            acceptNode(node) {
+                if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                // rejeita se estiver dentro de tags que não devem ser modificadas
+                if (isIgnored(node.parentElement)) return NodeFilter.FILTER_REJECT;
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        });
+
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+        // regex captura $$...$$ (multilinha) ou $...$ (inline)
+        const mathRegex = /(\$\$[\s\S]+?\$\$|\$[^\n$]+\$)/g;
+
+        textNodes.forEach(node => {
+            const text = node.nodeValue;
+            if (!mathRegex.test(text)) return;
+
+            const frag = document.createDocumentFragment();
+            let lastIndex = 0;
+            text.replace(mathRegex, (match, m1, offset) => {
+                // texto antes do match
+                if (offset > lastIndex) {
+                    frag.appendChild(document.createTextNode(text.slice(lastIndex, offset)));
+                }
+                lastIndex = offset + match.length;
+
+                // determina displayMode
+                let content, display;
+                if (match.startsWith('$$') && match.endsWith('$$')) {
+                    display = true;
+                    content = match.slice(2, -2);
+                } else {
+                    display = false;
+                    content = match.slice(1, -1);
+                }
+
+                // renderiza KaTeX para a ocorrência (uma vez)
+                try {
+                    const katexHtml = katex.renderToString(content, {
+                        displayMode: display,
+                        throwOnError: false,
+                        trust: true,
+                        strict: 'ignore',
+                        macros: { '\\text': '\\mathrm' }
+                    });
+                    // inserir nodes do HTML gerado
+                    const temp = document.createElement('div');
+                    temp.innerHTML = katexHtml;
+                    while (temp.firstChild) frag.appendChild(temp.firstChild);
+                } catch (e) {
+                    // fallback: inserir o texto bruto
+                    frag.appendChild(document.createTextNode(match));
+                    console.warn('KaTeX render error:', e);
+                }
+                return match;
+            });
+
+            // remainder text
+            if (lastIndex < text.length) {
+                frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+            }
+
+            // substitui nó de texto pelo fragmento montado
+            node.parentNode.replaceChild(frag, node);
+        });
+    }
+
     renderChunks(md) {
-        // NÃO limpe markdown aqui! Apenas divida e renderize normalmente.
-        this.chunks = md.split(/\n{2,}/).filter(Boolean);
-        this.chunkHtml = this.chunks.map(p => marked.parse(p));
+        const src = md || '';
+
+        // 1) Gerar HTML completo com marked (sem extensão math ativa)
+        const fullHtml = marked.parse(src);
+
+        // 2) Monta DOM temporário e aplica KaTeX no DOM (uma vez por ocorrência)
+        const container = document.createElement('div');
+        container.innerHTML = fullHtml;
+        this._renderMathInNode(container);
+
+        // 3) Converter cada elemento de nível superior em um chunk (preserva ordem e tabelas)
+        const elements = Array.from(container.children).filter(n => {
+            return !(n.tagName && n.tagName.toLowerCase() === 'meta');
+        });
+
+        this.chunkHtml = elements.map(el => el.outerHTML);
+
+        // extrair texto legível para TTS a partir do DOM renderizado
+        this.chunks = elements.map(el => (el.textContent || el.innerText || '').trim());
+
+        // 4) Render preview
         this.preview.innerHTML = this.chunkHtml.map((html, i) =>
             `<div class="chunk" data-index="${i}">${html}</div>`
         ).join('');
-        // Realce de sintaxe após renderização
+
+        // 5) Pós-processamento (highlight + mermaid)
         if (window.highlightAllChunks) window.highlightAllChunks();
+
         return this.chunks;
     }
 

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pronomes Pessoais em Inglês - Personal Pronouns</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="slide-header">
+            <h1 class="main-title">
+                <span class="emoji">👋</span>
+                Pronomes Pessoais em Inglês
+                <span class="emoji">🇺🇸</span>
+            </h1>
+            <h2 class="subtitle">Personal Pronouns - Aprendendo de forma divertida!</h2>
+        </header>
+
+        <!-- Hero Image -->
+        <section class="hero-section">
+            <img src="https://user-gen-media-assets.s3.amazonaws.com/seedream_images/56ed6230-a8b4-4720-a45b-c46cbd240023.png" 
+                 alt="Personagens representando pronomes pessoais" 
+                 class="hero-image">
+        </section>
+
+        <!-- Explanation Section -->
+        <section class="explanation-section">
+            <div class="explanation-card">
+                <h3>O que são Pronomes Pessoais? 🤔</h3>
+                <p class="explanation-text">
+                    Os pronomes pessoais <strong>substituem nomes</strong> de pessoas, lugares e objetos! 
+                    Em inglês, eles nos ajudam a falar de forma mais fácil e rápida.
+                </p>
+                <div class="example-box">
+                    <p><strong>Exemplo:</strong> "Maria estuda" → "<em>Ela</em> estuda" (She studies)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pronouns Tables -->
+        <section class="pronouns-section">
+            <div class="pronouns-container">
+                <!-- Subject Pronouns -->
+                <div class="pronoun-table subject-table">
+                    <h3 class="table-title subject-title">
+                        <span class="emoji">🎭</span>
+                        Subject Pronouns
+                        <span class="subtitle-small">(Sujeito da frase)</span>
+                    </h3>
+                    <div class="pronouns-grid" id="subjectPronouns">
+                        <!-- Será preenchido pelo JavaScript -->
+                    </div>
+                    <div class="rule-box subject-rule">
+                        <p><strong>Regra:</strong> Usados como SUJEITO (quem faz a ação)</p>
+                        <p><em>Vêm ANTES do verbo</em></p>
+                    </div>
+                </div>
+
+                <!-- Object Pronouns -->
+                <div class="pronoun-table object-table">
+                    <h3 class="table-title object-title">
+                        <span class="emoji">🎯</span>
+                        Object Pronouns
+                        <span class="subtitle-small">(Objeto da frase)</span>
+                    </h3>
+                    <div class="pronouns-grid" id="objectPronouns">
+                        <!-- Será preenchido pelo JavaScript -->
+                    </div>
+                    <div class="rule-box object-rule">
+                        <p><strong>Regra:</strong> Usados como OBJETO (quem recebe a ação)</p>
+                        <p><em>Vêm DEPOIS do verbo ou preposição</em></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Examples Section -->
+        <section class="examples-section">
+            <h3 class="section-title">
+                <span class="emoji">📝</span>
+                Exemplos Práticos
+            </h3>
+            <div class="examples-grid" id="examplesGrid">
+                <!-- Será preenchido pelo JavaScript -->
+            </div>
+        </section>
+
+        <!-- Interactive Quiz -->
+        <section class="quiz-section">
+            <h3 class="section-title">
+                <span class="emoji">🧠</span>
+                Quiz Interativo
+                <span class="score" id="quizScore">Pontuação: 0</span>
+            </h3>
+            <div class="quiz-container">
+                <div class="quiz-question" id="quizQuestion">
+                    <!-- Será preenchido pelo JavaScript -->
+                </div>
+                <div class="quiz-options" id="quizOptions">
+                    <!-- Será preenchido pelo JavaScript -->
+                </div>
+                <div class="quiz-feedback" id="quizFeedback"></div>
+                <div class="quiz-controls">
+                    <button class="btn btn--primary" id="nextQuestionBtn" style="display: none;">Próxima Pergunta</button>
+                    <button class="btn btn--secondary" id="restartQuizBtn" style="display: none;">Recomeçar Quiz</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Matching Game -->
+        <section class="game-section">
+            <h3 class="section-title">
+                <span class="emoji">🎮</span>
+                Jogo de Combinação
+                <span class="score" id="gameScore">Pontuação: 0</span>
+            </h3>
+            <div class="game-instructions">
+                <p>Combine os Subject Pronouns com seus Object Pronouns correspondentes!</p>
+            </div>
+            <div class="matching-game" id="matchingGame">
+                <div class="game-column">
+                    <h4>Subject Pronouns</h4>
+                    <div class="game-items subject-items" id="subjectItems">
+                        <!-- Será preenchido pelo JavaScript -->
+                    </div>
+                </div>
+                <div class="game-column">
+                    <h4>Object Pronouns</h4>
+                    <div class="game-items object-items" id="objectItems">
+                        <!-- Será preenchido pelo JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="game-controls">
+                <button class="btn btn--primary" id="resetGameBtn">Reiniciar Jogo</button>
+                <button class="btn btn--secondary" id="checkAnswersBtn">Verificar Respostas</button>
+            </div>
+            <div class="game-feedback" id="gameFeedback"></div>
+        </section>
+
+        <!-- Tips Section -->
+        <section class="tips-section">
+            <h3 class="section-title">
+                <span class="emoji">💡</span>
+                Dicas para Memorizar
+            </h3>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <h4>🎭 Subject Pronouns</h4>
+                    <p>Lembre-se: eles fazem a ação!</p>
+                    <p><em>"<strong>I</strong> love pizza" - Eu amo pizza</em></p>
+                </div>
+                <div class="tip-card">
+                    <h4>🎯 Object Pronouns</h4>
+                    <p>Lembre-se: eles recebem a ação!</p>
+                    <p><em>"Call <strong>me</strong>" - Me ligue</em></p>
+                </div>
+                <div class="tip-card">
+                    <h4>🔄 Transformação</h4>
+                    <p>I → Me, He → Him, She → Her</p>
+                    <p><em>We → Us, They → Them</em></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="slide-footer">
+            <p>🌟 Parabéns por aprender inglês! Continue praticando! 🌟</p>
+        </footer>
+    </div>
+
+    <!-- Sound Effect Modal -->
+    <div class="sound-modal" id="soundModal">
+        <div class="sound-content">
+            <span class="sound-text" id="soundText"></span>
+            <div class="sound-animation">
+                <span class="sound-wave"></span>
+                <span class="sound-wave"></span>
+                <span class="sound-wave"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
